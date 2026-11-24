@@ -3,10 +3,10 @@ import ConstellationCanvas from './ConstellationCanvas.vue'
 import CourseConstellation from './CourseConstellation.vue'
 
 const stats = [
-  { n: '21', l: 'Courses' },
-  { n: '189', l: 'Notes' },
-  { n: '1.5k+', l: 'Figures' },
-  { n: '7', l: 'Semesters' },
+  { n: '21', l: '课程' },
+  { n: '189', l: '笔记' },
+  { n: '1.5k+', l: '图片' },
+  { n: '7', l: '学期' },
 ]
 
 const BASE = import.meta.env.BASE_URL || '/'
