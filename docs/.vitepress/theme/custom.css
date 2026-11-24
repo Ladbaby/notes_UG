@@ -1,0 +1,1182 @@
+/* ============================================================
+   Undergraduate Notes — portfolio theme
+   ------------------------------------------------------------
+   Two complete colour modes. Every surface reads from a token, so
+   light mode is a first-class theme rather than a dark theme with
+   lightened text.
+
+   Motion budget: only transform / opacity / background-position,
+   never layout. The canvas is 30fps, DPR-capped, and idles when
+   off-screen, hidden, or when the user prefers reduced motion.
+   ============================================================ */
+
+/* ---------- design tokens ---------- */
+
+:root {
+  /* Brand is shared; only the surfaces differ per mode. */
+  --vn-accent: #5b7cfa;
+  --vn-accent-2: #a874ff;
+  --vn-accent-3: #22c9b4;
+  --vn-max: 1180px;
+  --vn-radius: 16px;
+
+  /* ---- LIGHT (default) ---- */
+  --vn-bg: #f6f7fc;
+  --vn-bg-alt: #eceff8;
+  --vn-bg-soft: #eef1f9;
+  --vn-elev: #ffffff;
+  --vn-text: #0f1428;
+  --vn-muted: #59617d;
+  --vn-line: rgba(22, 32, 74, 0.1);
+  --vn-line-strong: rgba(22, 32, 74, 0.2);
+  --vn-card: rgba(255, 255, 255, 0.72);
+  --vn-card-hover: rgba(255, 255, 255, 0.98);
+  /* Opaque-ish surface for cards that must not pay backdrop-filter cost. */
+  --vn-card-solid: rgba(255, 255, 255, 0.88);
+  --vn-card-solid-hover: #ffffff;
+  --vn-nav-bg: rgba(248, 249, 254, 0.82);
+  --vn-glow-a: rgba(91, 124, 250, 0.2);
+  --vn-glow-b: rgba(168, 116, 255, 0.17);
+  --vn-glow-c: rgba(34, 201, 180, 0.13);
+  --vn-title-1: #0d1124;
+  --vn-title-2: #3f4e9e;
+  --vn-title-3: #7b46cf;
+  --vn-grid: rgba(22, 32, 74, 0.055);
+  --vn-shadow: 0 12px 34px -18px rgba(20, 30, 78, 0.4);
+  --vn-shadow-lg: 0 26px 60px -28px rgba(20, 30, 78, 0.5);
+
+  /* VitePress surface mapping — light */
+  --vp-c-bg: var(--vn-bg);
+  --vp-c-bg-alt: var(--vn-bg-alt);
+  --vp-c-bg-elv: var(--vn-elev);
+  --vp-c-bg-soft: var(--vn-bg-soft);
+  --vp-c-brand-1: #4257c4;
+  --vp-c-brand-2: #5b7cfa;
+  --vp-c-brand-3: #3446a8;
+  --vp-c-text-1: var(--vn-text);
+  --vp-c-text-2: var(--vn-muted);
+  --vp-c-text-3: #767e96;
+  --vp-c-divider: var(--vn-line);
+  --vp-c-gutter: var(--vn-line);
+  --vp-sidebar-bg-color: var(--vn-bg);
+  --vp-nav-bg-color: var(--vn-nav-bg);
+  --vp-code-color: #4257c4;
+}
+
+html.dark {
+  --vn-bg: #070a14;
+  --vn-bg-alt: #0a0e1c;
+  --vn-bg-soft: #0d1326;
+  --vn-elev: #111a30;
+  --vn-text: #e3e9f8;
+  --vn-muted: #8b97b8;
+  --vn-line: rgba(140, 170, 255, 0.13);
+  --vn-line-strong: rgba(140, 170, 255, 0.28);
+  --vn-card: rgba(255, 255, 255, 0.035);
+  --vn-card-hover: rgba(255, 255, 255, 0.085);
+  --vn-card-solid: rgba(18, 24, 44, 0.82);
+  --vn-card-solid-hover: rgba(30, 38, 66, 0.95);
+  --vn-nav-bg: rgba(8, 12, 24, 0.72);
+  --vn-glow-a: rgba(78, 120, 255, 0.36);
+  --vn-glow-b: rgba(158, 106, 255, 0.3);
+  --vn-glow-c: rgba(34, 201, 180, 0.16);
+  --vn-title-1: #ffffff;
+  --vn-title-2: #b7c9f7;
+  --vn-title-3: #a98bf0;
+  --vn-grid: rgba(140, 170, 255, 0.07);
+  --vn-shadow: 0 14px 40px -20px rgba(0, 0, 0, 0.85);
+  --vn-shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.95);
+
+  /* VitePress surface mapping — dark */
+  --vp-c-bg: var(--vn-bg);
+  --vp-c-bg-alt: var(--vn-bg-soft);
+  --vp-c-bg-elv: var(--vn-elev);
+  --vp-c-bg-soft: var(--vn-bg-soft);
+  --vp-c-brand-1: #7ea6ff;
+  --vp-c-brand-2: #9bbaff;
+  --vp-c-brand-3: #6d97f5;
+  --vp-c-text-1: var(--vn-text);
+  --vp-c-text-2: var(--vn-muted);
+  --vp-c-divider: var(--vn-line);
+  --vp-c-gutter: var(--vn-line);
+  --vp-sidebar-bg-color: var(--vn-bg);
+  --vp-c-nav-bg-color: var(--vn-nav-bg);
+  --vp-nav-bg-color: var(--vn-nav-bg);
+}
+
+/* ---------- global surface ---------- */
+
+body {
+  background: var(--vn-bg);
+  transition: background-color 0.3s ease;
+}
+
+.VPNav,
+.VPNavBar {
+  backdrop-filter: saturate(160%) blur(12px);
+}
+
+.VPNavBar.has-sidebar .content,
+.VPNavBar {
+  background-color: var(--vp-nav-bg-color);
+}
+
+.vp-doc,
+.Layout {
+  position: relative;
+}
+
+/* ---------- reading surface ---------- */
+
+.vp-doc {
+  line-height: 1.78;
+}
+
+.vp-doc h1 {
+  font-size: 1.95rem;
+  letter-spacing: -0.015em;
+  border-bottom: 1px solid var(--vn-line);
+  padding-bottom: 0.5rem;
+}
+
+.vp-doc h2 {
+  margin-top: 2.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--vn-line);
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+}
+
+.vp-doc h3 {
+  font-size: 1.16rem;
+}
+
+/* Typora's ==highlight== */
+.vp-doc mark {
+  background: linear-gradient(
+    180deg,
+    transparent 52%,
+    color-mix(in srgb, var(--vn-accent) 32%, transparent) 52%
+  );
+  color: inherit;
+  padding: 0 0.12em;
+  border-radius: 2px;
+}
+
+.vp-doc img {
+  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: var(--vn-shadow);
+}
+
+.vp-doc img.medium-zoom-image {
+  cursor: zoom-in;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+}
+
+/* Long display formulas shouldn't blow out the column. */
+.vp-doc .math-display,
+.vp-doc mjx-container[display='true'] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.35rem 0;
+}
+
+/* ============================================================
+   Landing field: constellation canvas + aurora + dot grid
+   ============================================================ */
+
+.vn-hero-shell {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.vn-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Decorative: isolate so nothing inside can trigger page reflow. */
+  contain: layout paint style;
+  /*
+   * Only needs to fade toward the bottom of the hero now that the field is
+   * clipped to the hero box rather than the whole viewport.
+   */
+  --vn-field-fade: linear-gradient(to bottom, #000 0, #000 72%, transparent 100%);
+  -webkit-mask-image: var(--vn-field-fade);
+  mask-image: var(--vn-field-fade);
+}
+
+.vn-field__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+/* Static wash for reduced motion / suppressed canvas. */
+.vn-field__fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(58% 48% at 20% 10%, var(--vn-glow-a), transparent 70%),
+    radial-gradient(52% 44% at 84% 80%, var(--vn-glow-b), transparent 72%);
+}
+
+/* Aurora.
+   Each blob is a plain radial-gradient with no filter and NO animation.
+
+   Measured on a headed browser: animating three large composited layers with a
+   slow transform cost ~45 percentage points of GPU (78% -> 32% with the
+   animation frozen, and hiding them entirely changed nothing further). It was
+   the transform animation itself that was expensive, not the gradients — every
+   frame forces the compositor to re-composite three ~600px layers.
+
+   The drift is therefore expressed by the gradients being positioned at
+   different corners, which reads the same at a glance and costs zero per frame. */
+.vn-field__glow {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 1;
+  will-change: auto;
+  animation: none;
+}
+
+.vn-field__glow--a {
+  width: 78vw;
+  height: 78vw;
+  left: -22vw;
+  top: -26vw;
+  background: radial-gradient(circle, var(--vn-glow-a) 0%, transparent 66%);
+}
+
+.vn-field__glow--b {
+  width: 68vw;
+  height: 68vw;
+  right: -18vw;
+  bottom: -26vw;
+  background: radial-gradient(circle, var(--vn-glow-b) 0%, transparent 68%);
+}
+
+.vn-field__glow--c {
+  width: 52vw;
+  height: 52vw;
+  right: 4vw;
+  top: -4vw;
+  background: radial-gradient(circle, var(--vn-glow-c) 0%, transparent 70%);
+}
+
+/* Faint dot grid, radially masked so it fades out at the edges. */
+/* Faint dot grid.
+   One tiled background image and nothing else. Stacking a second gradient on
+   top to fake a radial fade made the compositor resolve a large mask under the
+   animating canvas every frame (~11 points of GPU). Fading is instead handled
+   once by the masked parent. */
+.vn-field__grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--vn-grid) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: 0 0;
+}
+
+/* Spotlight that follows the pointer across the field. */
+.vn-field__spot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, 30%),
+    color-mix(in srgb, var(--vn-accent) 15%, transparent),
+    transparent 70%
+  );
+}
+
+.vn-field.is-pointing .vn-field__spot {
+  opacity: 1;
+}
+
+/* ---------- landing layout ---------- */
+
+.vn-home {
+  position: relative;
+  z-index: 1;
+  max-width: var(--vn-max);
+  margin: 0 auto;
+  padding: 6.8rem 1.35rem 4rem;
+}
+
+.vn-hero {
+  position: relative;
+  z-index: 1;
+  max-width: var(--vn-max);
+  margin: 0 auto;
+  padding: 6.8rem 1.35rem 5rem;
+}
+
+.vn-hero > * {
+  max-width: 48rem;
+}
+
+.vn-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--vn-accent) 82%, var(--vn-text));
+  border: 1px solid color-mix(in srgb, var(--vn-accent) 30%, transparent);
+  border-radius: 999px;
+  padding: 0.34rem 0.85rem;
+  background: color-mix(in srgb, var(--vn-accent) 9%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.vn-eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vn-accent-3);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--vn-accent-3) 75%, transparent);
+  animation: vn-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes vn-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+/* Big gradient headline with a slow shimmer. */
+.vn-hero__title {
+  margin: 1.5rem 0 0;
+  font-size: clamp(2.5rem, 6.2vw, 4.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.038em;
+  font-weight: 750;
+  background: linear-gradient(
+    108deg,
+    var(--vn-title-1) 8%,
+    var(--vn-title-2) 40%,
+    var(--vn-title-3) 62%,
+    var(--vn-title-1) 92%
+  );
+  background-size: 130% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /*
+   * No animation here on purpose.
+   *
+   * Animating background-position while background-clip:text is active makes the
+   * compositor re-rasterise the text clipping mask every frame — measured ~9
+   * percentage points of GPU for an effect that is essentially invisible on a
+   * gradient this smooth. The gradient itself is what reads as "premium".
+   */
+}
+
+.vn-hero__title em {
+  font-style: normal;
+  display: inline-block;
+  background: linear-gradient(
+    100deg,
+    var(--vn-accent) 0%,
+    var(--vn-accent-2) 55%,
+    var(--vn-accent-3) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.vn-hero__sub {
+  margin-top: 1.3rem;
+  font-size: 1.06rem;
+  line-height: 1.78;
+  color: var(--vn-muted);
+  max-width: 39rem;
+}
+
+.vn-hero__sub strong {
+  color: var(--vn-text);
+  font-weight: 600;
+}
+
+/* ---------- stat cards ---------- */
+
+.vn-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 2.1rem;
+}
+
+.vn-stat {
+  position: relative;
+  border: 1px solid var(--vn-line);
+  border-radius: 13px;
+  padding: 0.7rem 1.05rem;
+  background: var(--vn-card-solid);
+  min-width: 6.6rem;
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease,
+    background-color 0.22s ease;
+}
+
+.vn-stat::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--vn-accent) 55%, transparent),
+    transparent
+  );
+  opacity: 0.7;
+}
+
+.vn-stat:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--vn-accent) 40%, transparent);
+  background: var(--vn-card-hover);
+}
+
+.vn-stat__n {
+  display: block;
+  font-size: 1.32rem;
+  font-weight: 680;
+  color: var(--vn-text);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.vn-stat__l {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+  margin-top: 0.16rem;
+}
+
+/* ---------- buttons ---------- */
+
+.vn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.2rem;
+}
+
+.vn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 11px;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.94rem;
+  font-weight: 560;
+  text-decoration: none !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease, border-color 0.2s ease;
+  will-change: transform;
+}
+
+.vn-btn--primary {
+  color: #fff !important;
+  background: linear-gradient(
+    135deg,
+    var(--vn-accent) 0%,
+    var(--vn-accent-2) 100%
+  );
+  box-shadow: 0 10px 30px -12px
+    color-mix(in srgb, var(--vn-accent) 85%, transparent);
+}
+
+.vn-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px -16px
+    color-mix(in srgb, var(--vn-accent) 95%, transparent);
+}
+
+.vn-btn--ghost {
+  color: var(--vn-text) !important;
+  border: 1px solid var(--vn-line-strong);
+  background: var(--vn-card);
+  backdrop-filter: blur(8px);
+}
+
+.vn-btn--ghost:hover {
+  transform: translateY(-2px);
+  background: var(--vn-card-hover);
+  border-color: color-mix(in srgb, var(--vn-accent) 42%, transparent);
+}
+
+/* ---------- section heading ---------- */
+
+.vn-section {
+  margin-top: 4.8rem;
+}
+
+.vn-section__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+  margin-bottom: 1.5rem;
+}
+
+.vn-section__title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--vn-line-strong), transparent);
+}
+
+/* ---------- scroll cue ---------- */
+
+.vn-scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 3.2rem;
+  font-size: 0.73rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+  text-decoration: none !important;
+  transition: color 0.2s ease;
+}
+
+.vn-scroll:hover {
+  color: var(--vn-text);
+}
+
+.vn-scroll__line {
+  width: 42px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--vn-accent), transparent);
+  position: relative;
+  overflow: hidden;
+}
+
+.vn-scroll__line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 12px;
+  background: var(--vn-accent);
+  animation: vn-scroll-run 2.4s ease-in-out infinite;
+}
+
+@keyframes vn-scroll-run {
+  0% {
+    transform: translateX(-14px);
+  }
+  60%,
+  100% {
+    transform: translateX(44px);
+  }
+}
+
+/* ---------- semester groups + cards ---------- */
+
+.vc-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2.1rem;
+}
+
+.vc-sem {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--stagger) * 40ms);
+}
+
+.vc-sem.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.vc-sem__head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.vc-sem__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--vn-accent);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--vn-accent) 60%, transparent);
+  flex: none;
+}
+
+.vc-sem__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  border: 0;
+  padding: 0;
+}
+
+.vc-sem__zh {
+  font-weight: 620;
+  color: var(--vn-text);
+}
+
+.vc-sem__en {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+}
+
+.vc-sem__line {
+  flex: 1;
+  height: 1px;
+  background: var(--vn-line);
+}
+
+.vc-sem__count {
+  font-size: 0.74rem;
+  color: var(--vn-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.vc-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: 0.7rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vc-card {
+  margin: 0;
+}
+
+.vc-card__link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.78rem 0.92rem;
+  border: 1px solid var(--vn-line);
+  border-radius: var(--vn-radius);
+  background: var(--vn-card-solid);
+  text-decoration: none !important;
+  color: var(--vn-text) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vc-card__link:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--vn-card-hover);
+  box-shadow: var(--vn-shadow);
+}
+
+.vc-card__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+
+.vc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.vc-card__zh {
+  font-size: 0.94rem;
+  font-weight: 560;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vc-card__en {
+  font-size: 0.72rem;
+  color: var(--vn-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vc-card__arrow {
+  margin-left: auto;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.vc-card__link:hover .vc-card__arrow {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- /courses page grid ---------- */
+
+.cg-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2.6rem;
+  margin-top: 1.5rem;
+}
+
+.cg-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 1.02rem;
+  border: 0;
+  margin: 0 0 0.9rem;
+  padding: 0;
+}
+
+.cg-heading small {
+  font-size: 0.73rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+  font-weight: 400;
+}
+
+.cg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.cg-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding: 0.92rem 1rem 0.98rem;
+  border: 1px solid var(--vn-line);
+  border-radius: 14px;
+  background: var(--vn-card-solid);
+  text-decoration: none !important;
+  color: var(--vn-text) !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cg-item:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--vn-card-solid-hover);
+  box-shadow: var(--vn-shadow);
+}
+
+.cg-item__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.cg-item__zh {
+  font-weight: 560;
+  font-size: 0.95rem;
+  color: var(--vn-text);
+}
+
+.cg-item__en {
+  font-size: 0.73rem;
+  color: var(--vn-muted);
+}
+
+/* ---------- per-course landing page ---------- */
+
+.ci {
+  position: relative;
+  max-width: 46rem;
+  padding: 2.25rem 0 5rem;
+  isolation: isolate;
+}
+
+.ci-glow {
+  position: absolute;
+  top: -8rem;
+  left: -12rem;
+  width: 34rem;
+  height: 26rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--accent, #7c9ef5) 16%, transparent),
+    transparent 68%
+  );
+  filter: blur(18px);
+}
+
+.ci-head {
+  padding-bottom: 1.9rem;
+  border-bottom: 1px solid var(--vn-line);
+}
+
+.ci-crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+}
+
+.ci-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.16rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent, #7c9ef5) 42%, transparent);
+  background: color-mix(in srgb, var(--accent, #7c9ef5) 12%, transparent);
+  color: color-mix(in srgb, var(--accent, #7c9ef5) 78%, var(--vn-text));
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.ci-title {
+  margin: 0;
+  font-size: clamp(2.1rem, 5.2vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    105deg,
+    var(--vn-text) 22%,
+    var(--accent, #7c9ef5) 92%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ci-sub {
+  margin: 0.45rem 0 0;
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  color: var(--vn-muted);
+}
+
+.ci-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.4rem;
+  margin: 1.7rem 0 0;
+}
+
+.ci-stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.15rem;
+}
+
+.ci-stats dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+}
+
+.ci-stats dd {
+  margin: 0;
+  font-size: 1.42rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--vn-text);
+}
+
+.ci-stats dd small {
+  margin-left: 0.18rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--vn-muted);
+}
+
+/* Flat anchor list (not <ol>) so VitePress can't double-number it. */
+.ci-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 1.6rem;
+}
+
+.ci-sec + .ci-sec {
+  margin-top: 0.35rem;
+}
+
+.ci-group {
+  margin: 1.7rem 0 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+}
+
+.ci-group:first-child {
+  margin-top: 0;
+}
+
+.vp-doc .ci a.ci-item,
+.ci a.ci-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  padding: 0.62rem 0.8rem;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  text-decoration: none !important;
+  color: var(--vn-text) !important;
+  font-weight: 400 !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.ci-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 0;
+  border-radius: 2px;
+  background: var(--accent, #7c9ef5);
+  transform: translateY(-50%);
+  transition: height 0.2s ease;
+}
+
+.ci-item:hover {
+  background: var(--vn-bg-soft);
+  border-color: color-mix(in srgb, var(--accent, #7c9ef5) 26%, transparent);
+  transform: translateX(3px);
+}
+
+.ci-item:hover::before {
+  height: 58%;
+}
+
+.ci-num {
+  flex: 0 0 1.6rem;
+  text-align: right;
+  font-size: 0.73rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--vn-muted);
+  transition: color 0.18s ease;
+}
+
+.ci-item:hover .ci-num {
+  color: var(--accent, #7c9ef5);
+}
+
+.ci-text {
+  flex: 1 1 auto;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.ci-arrow {
+  flex: 0 0 auto;
+  font-size: 0.88rem;
+  color: var(--accent, #7c9ef5);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.ci-item:hover .ci-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* primary "start reading" action */
+.ci-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2.1rem;
+  padding: 0.7rem 1.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent, #7c9ef5) 48%, transparent);
+  background: color-mix(in srgb, var(--accent, #7c9ef5) 15%, transparent);
+  color: color-mix(in srgb, var(--accent, #7c9ef5) 85%, var(--vn-text)) !important;
+  font-size: 0.9rem;
+  font-weight: 550;
+  text-decoration: none !important;
+  transition: background-color 0.18s ease, transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.ci-cta:hover {
+  background: color-mix(in srgb, var(--accent, #7c9ef5) 26%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px -8px
+    color-mix(in srgb, var(--accent, #7c9ef5) 70%, transparent);
+}
+
+/* course-to-course navigation */
+.ci-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  margin-top: 3.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--vn-line);
+}
+
+.ci-pager__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--vn-line);
+  text-decoration: none !important;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.ci-pager__link:hover {
+  border-color: color-mix(in srgb, var(--accent, #7c9ef5) 45%, transparent);
+  background: var(--vn-bg-soft);
+}
+
+.ci-pager__link small {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vn-muted);
+}
+
+.ci-pager__link span {
+  font-size: 0.92rem;
+  font-weight: 550;
+  color: var(--vn-text) !important;
+}
+
+.ci-pager__link--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.ci--missing {
+  padding: 4rem 0;
+  color: var(--vn-muted);
+}
+
+/* ---------- responsive + motion ---------- */
+
+@media (max-width: 767px) {
+  .vn-home {
+    padding: 0 1.05rem 3.2rem;
+  }
+
+  .vn-hero {
+    padding: 5rem 1.05rem 3.2rem;
+  }
+
+  .vn-field__canvas {
+    display: none; /* mobile: gradients only, no canvas cost */
+  }
+
+  .vn-field__spot {
+    display: none;
+  }
+
+  .vc-list,
+  .cg-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vp-doc img {
+    border-radius: 6px;
+  }
+
+  .ci-pager {
+    grid-template-columns: 1fr;
+  }
+
+  .ci-pager__link--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .vc-sem {
+    opacity: 1;
+    transform: none;
+  }
+
+  .vn-field__glow {
+    will-change: auto;
+    animation: none;
+  }
+
+  .vn-hero__title {
+    animation: none;
+    background-position: 30% 50%;
+  }
+}

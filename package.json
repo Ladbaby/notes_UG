@@ -1,0 +1,35 @@
+{
+  "name": "notes-ug",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "migrate": "node scripts/build-slug-map.mjs && node scripts/migrate.mjs && node scripts/crop-screenshots.mjs && node scripts/gen-course-index.mjs",
+    "dev": "node scripts/gen-course-index.mjs && vitepress dev docs",
+    "preflight": "node scripts/preflight.mjs",
+    "prebuild": "node scripts/preflight.mjs",
+    "build": "node scripts/gen-course-index.mjs && node scripts/build-site.mjs && node scripts/build-search.mjs",
+    "preview": "vitepress preview docs",
+    "check:leaks": "node scripts/check-leaks.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "audit:wide": "node scripts/audit-wide.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "devDependencies": {
+    "debug": "^4.4.3",
+    "markdown-it-mark": "^4.0.0",
+    "markdown-it-mathjax3": "^4.3.2",
+    "medium-zoom": "^1.1.2",
+    "mermaid": "^11.17.2",
+    "pagefind": "^1.6.0",
+    "sharp": "^0.35.5",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "vitepress-plugin-pagefind": "^0.4.27",
+    "vue": "^3.5.46"
+  }
+}

@@ -1,0 +1,3 @@
+- UI: <br>layouts are **ViewGroup** objects, widgets are **View** objects
+- ConstraintLayout: <br>defines the position for each view based on constraints to **sibling views** and the **parent layout**
+- strings.xml: <br>一个集中管理键和string值的地方

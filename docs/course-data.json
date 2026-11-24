@@ -1,0 +1,181 @@
+{
+  "semesters": [
+    { "slug": "y1-fall",    "dir": "大一上", "labelZh": "大一上", "labelEn": "Year 1 · Fall" },
+    { "slug": "y2-fall",    "dir": "大二上", "labelZh": "大二上", "labelEn": "Year 2 · Fall" },
+    { "slug": "y2-spring",  "dir": "大二下", "labelZh": "大二下", "labelEn": "Year 2 · Spring" },
+    { "slug": "y3-fall",    "dir": "大三上", "labelZh": "大三上", "labelEn": "Year 3 · Fall" },
+    { "slug": "y3-spring",  "dir": "大三下", "labelZh": "大三下", "labelEn": "Year 3 · Spring" },
+    { "slug": "y4-fall",    "dir": "大四上", "labelZh": "大四上", "labelEn": "Year 4 · Fall" },
+    { "slug": "y4-spring",  "dir": "大四下", "labelZh": "大四下", "labelEn": "Year 4 · Spring" }
+  ],
+  "courses": [
+    {
+      "slug": "linear-algebra",
+      "src": "大一上/Linear_Algebra",
+      "semester": "y1-fall",
+      "titleZh": "线性代数",
+      "titleEn": "Linear Algebra",
+      "accent": "#7c9ef5"
+    },
+    {
+      "slug": "android",
+      "src": "大二上/Mind_Map_Android",
+      "semester": "y2-fall",
+      "titleZh": "Android 开发",
+      "titleEn": "Android Development",
+      "accent": "#7ddc9a"
+    },
+    {
+      "slug": "data-structures",
+      "src": "大二上/Mind_Map_Data_Structure",
+      "semester": "y2-fall",
+      "titleZh": "数据结构",
+      "titleEn": "Data Structures",
+      "accent": "#5fc9d8"
+    },
+    {
+      "slug": "digital-logic",
+      "src": "大二上/Mind_Map_Digital_Logic",
+      "semester": "y2-fall",
+      "titleZh": "数字逻辑",
+      "titleEn": "Digital Logic",
+      "accent": "#c9a2f0"
+    },
+    {
+      "slug": "electric-circuits",
+      "src": "大二上/Mind_Map_Electric_Circuit",
+      "semester": "y2-fall",
+      "titleZh": "电路",
+      "titleEn": "Electric Circuits",
+      "accent": "#f0b86e"
+    },
+    {
+      "slug": "math-modeling",
+      "src": "大二上/Mind_Map_Mathematical_Modeling",
+      "semester": "y2-fall",
+      "titleZh": "数学建模",
+      "titleEn": "Mathematical Modeling",
+      "accent": "#8fd694"
+    },
+    {
+      "slug": "physics",
+      "src": "大二上/Mind_Map_Physics",
+      "semester": "y2-fall",
+      "titleZh": "大学物理",
+      "titleEn": "University Physics",
+      "accent": "#6fb2f2"
+    },
+    {
+      "slug": "ai",
+      "src": "大二下/Mind_Map_AI",
+      "semester": "y2-spring",
+      "titleZh": "人工智能",
+      "titleEn": "Artificial Intelligence",
+      "accent": "#e88fb8"
+    },
+    {
+      "slug": "algorithms",
+      "src": "大二下/Mind_Map_Algorithm",
+      "semester": "y2-spring",
+      "titleZh": "算法设计与分析",
+      "titleEn": "Algorithm Design",
+      "accent": "#7c9ef5"
+    },
+    {
+      "slug": "compilers",
+      "src": "大二下/Mind_Map_Compilers",
+      "semester": "y2-spring",
+      "titleZh": "编译原理",
+      "titleEn": "Compilers",
+      "accent": "#c9a2f0"
+    },
+    {
+      "slug": "computer-organization",
+      "src": "大二下/Mind_Map_Computer_Organization",
+      "semester": "y2-spring",
+      "titleZh": "计算机组成原理",
+      "titleEn": "Computer Organization",
+      "accent": "#f0b86e"
+    },
+    {
+      "slug": "database",
+      "src": "大二下/Mind_Map_Database",
+      "semester": "y2-spring",
+      "titleZh": "数据库系统",
+      "titleEn": "Database Systems",
+      "accent": "#5fc9d8"
+    },
+    {
+      "slug": "digital-image-processing",
+      "src": "大三上/Mind_Map_Digital_Image_Processing",
+      "semester": "y3-fall",
+      "titleZh": "数字图像处理",
+      "titleEn": "Digital Image Processing",
+      "accent": "#8fd694"
+    },
+    {
+      "slug": "deep-learning",
+      "src": "大三上/Mind_Map_DL",
+      "semester": "y3-fall",
+      "titleZh": "深度学习",
+      "titleEn": "Deep Learning",
+      "accent": "#e88fb8"
+    },
+    {
+      "slug": "computer-networks",
+      "src": "大三上/Mind_Map_Network",
+      "semester": "y3-fall",
+      "titleZh": "计算机网络",
+      "titleEn": "Computer Networks",
+      "accent": "#6fb2f2"
+    },
+    {
+      "slug": "operating-systems",
+      "src": "大三上/Mind_Map_OS",
+      "semester": "y3-fall",
+      "titleZh": "操作系统",
+      "titleEn": "Operating Systems",
+      "accent": "#7ddc9a"
+    },
+    {
+      "slug": "software-engineering",
+      "src": "大三上/Mind_Map_Software_Engineering",
+      "semester": "y3-fall",
+      "titleZh": "软件工程",
+      "titleEn": "Software Engineering",
+      "accent": "#c9a2f0"
+    },
+    {
+      "slug": "pattern-recognition",
+      "src": "大三下/Pattern_Recognition",
+      "semester": "y3-spring",
+      "titleZh": "模式识别",
+      "titleEn": "Pattern Recognition",
+      "accent": "#f0b86e"
+    },
+    {
+      "slug": "advanced-networks",
+      "src": "大四上/高级计网",
+      "semester": "y4-fall",
+      "titleZh": "高级计算机网络",
+      "titleEn": "Advanced Computer Networks",
+      "accent": "#7c9ef5"
+    },
+    {
+      "slug": "information-retrieval",
+      "src": "大四下/信息检索",
+      "semester": "y4-spring",
+      "titleZh": "信息检索",
+      "titleEn": "Information Retrieval",
+      "accent": "#5fc9d8"
+    },
+    {
+      "slug": "visual-computing",
+      "src": "大四下/视觉计算",
+      "semester": "y4-spring",
+      "titleZh": "视觉计算",
+      "titleEn": "Visual Computing",
+      "accent": "#8fd694"
+    }
+  ]
+}
