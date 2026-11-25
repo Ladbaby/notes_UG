@@ -46,14 +46,11 @@ const withBase = (p) => {
         </div>
 
         <div class="vn-actions">
-          <a class="vn-btn vn-btn--primary" :href="withBase('courses')">
-            浏览全部课程 →
+          <a class="vn-btn vn-btn--primary" :href="withBase('graph')">
+            浏览知识图谱 →
           </a>
-          <a
-            class="vn-btn vn-btn--ghost"
-            :href="withBase('notes/y3-fall/operating-systems/ch1-introduction')"
-          >
-            随便看看一份笔记
+          <a class="vn-btn vn-btn--ghost" :href="withBase('courses')">
+            全部课程
           </a>
         </div>
 
