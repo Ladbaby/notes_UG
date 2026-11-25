@@ -349,6 +349,7 @@ function resize() {
   if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
   rectCache = null
+  rectScroll = { x: window.scrollX, y: window.scrollY }
   if (!laidOut) layout()
   requestDraw()
 }
@@ -920,9 +921,24 @@ function runIntro() {
  * changes on resize/scroll, so it is cached and invalidated explicitly.
  */
 let rectCache = null
+let rectScroll = { x: 0, y: 0 }
+let onScroll = null
 
+/**
+ * Canvas rect in viewport coordinates, cached across events.
+ *
+ * Scrolling changes left/top without changing width/height, so the cache is
+ * keyed on the scroll offset as well: a scroll invalidates it, a resize
+ * invalidates it, anything else reuses it. This keeps hover and zoom anchored
+ * to the right place without calling getBoundingClientRect() on every move.
+ */
 function canvasRect() {
-  if (!rectCache) rectCache = canvas.value.getBoundingClientRect()
+  const sx = window.scrollX
+  const sy = window.scrollY
+  if (!rectCache || rectScroll.x !== sx || rectScroll.y !== sy) {
+    rectCache = canvas.value.getBoundingClientRect()
+    rectScroll = { x: sx, y: sy }
+  }
   return rectCache
 }
 
@@ -931,21 +947,46 @@ function localPoint(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top }
 }
 
+/**
+ * Nearest node to a canvas-space point, or null.
+ *
+ * The hit radius uses the node's *maximum* drawn size (the hovered scale), not
+ * its resting size. Testing against the resting radius made the hover flicker
+ * at the rim of a node: the node grew on hover, the pointer drifted onto the
+ * enlarged edge, the test failed, it shrank back, and the hit returned.
+ */
 function nodeAt(sx, sy) {
   const k = view.k
+  const zoom = Math.pow(Math.min(1.7, Math.max(0.78, k)), 0.62)
   let best = null
   let bestD = Infinity
+  let bestR = 0
+
+  const currentId = hovered.value?.id ?? null
+
   for (const n of nodes.value) {
     const x = n.x * k + view.x
     const y = n.y * k + view.y
     const d = Math.hypot(x - sx, y - sy)
-    const hit = Math.max(11, radiusOf(n) * Math.pow(Math.min(1.7, Math.max(0.78, k)), 0.62) + 7)
-    if (d < hit && d < bestD) {
-      bestD = d
+    // 1.3 is the note hover scale, 1.18 for hubs; use the larger so the target
+    // never shrinks underneath the pointer.
+    const drawn = radiusOf(n) * zoom * 1.3
+    const reach = Math.max(11, drawn + 7)
+    if (d > reach) continue
+
+    // Hysteresis: the node already hovered keeps priority unless a competitor
+    // is significantly closer. Without this, overlapping hit discs made the
+    // highlight jump between neighbouring nodes while the pointer barely moved.
+    const bias = n.id === currentId ? 0.55 : 1
+    const score = d * bias
+
+    if (score < bestD) {
+      bestD = score
+      bestR = reach
       best = n
     }
   }
-  return best
+  return bestD <= bestR ? best : null
 }
 
 function onMove(e) {
@@ -1057,6 +1098,14 @@ onMounted(() => {
   resize()
   runIntro()
 
+  // Any scroll could move the canvas, so drop the cached rect. The scrollX/Y
+  // check in canvasRect() already covers this; this listener is belt and
+  // braces for programmatic scrolling and anchor jumps.
+  onScroll = () => {
+    rectCache = null
+  }
+  window.addEventListener('scroll', onScroll, { passive: true })
+
   if (import.meta.env.DEV) {
     window.__gxReplay = () => {
       prepareIntro()
@@ -1094,6 +1143,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (raf) cancelAnimationFrame(raf)
+  if (onScroll) window.removeEventListener('scroll', onScroll)
   ro?.disconnect()
   themeObs?.disconnect()
   const el = canvas.value
