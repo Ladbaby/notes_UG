@@ -4,7 +4,10 @@ import { pagefindPlugin, chineseSearchOptimize } from 'vitepress-plugin-pagefind
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { buildSidebar } from '../../scripts/gen-sidebar.mjs'
 
-const REPO = 'notes-UG'
+// Must match the GitHub repository name exactly: Pages serves the project site
+// at https://<user>.github.io/<repo>/, so a hyphen/underscore mismatch here
+// makes every asset 404. The repo is notes_UG.
+const REPO = 'notes_UG'
 const BASE = process.env.DOCS_BASE || `/${REPO}/`
 
 export default withMermaid(

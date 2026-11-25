@@ -11,6 +11,18 @@ const ROOT = process.cwd()
 const DOCS = path.join(ROOT, 'docs')
 const PUBLIC = path.join(DOCS, 'public')
 
+/**
+ * Site base path, read from config.mts so it cannot drift from the real deploy
+ * prefix. Hardcoding it here previously meant a repo rename would silently
+ * break route resolution.
+ */
+const BASE = (() => {
+  const src = fs.readFileSync(path.join(DOCS, '.vitepress', 'config.mts'), 'utf8')
+  const m = /const REPO = ['`]([^'`]+)['`]/.exec(src)
+  return m ? '/' + m[1] : '/'
+})()
+
+
 const broken = []
 const checked = { md: 0, img: 0 }
 
@@ -86,7 +98,7 @@ for (const file of walk(DOCS)) {
   // --- Root-absolute links must exist in public/ or be a built route ---
   for (const m of text.matchAll(/\]\((\/[^)\s]+)\)/g)) {
     const raw = m[1]
-    if (raw.startsWith('/notes-UG/')) continue // already based
+    if (raw.startsWith(BASE + '/')) continue // already based
     checked.md++
     const clean = decodeSafe(stripAnchor(raw)).replace(/^\//, '')
     const candidates = [
@@ -119,8 +131,6 @@ const routeMisses = []
 let routeChecked = 0
 
 if (fs.existsSync(DIST)) {
-  const BASE = '/notes-UG'
-
   function builtHtml(dir, out = []) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, e.name)

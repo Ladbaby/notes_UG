@@ -34,15 +34,18 @@ jobs:
       # fires the prebuild preflight, which fails fast if that content is
       # missing rather than publishing an empty site.
 
-      # Hard gate: never publish personal info or broken references.
+      # Hard gate: never publish personal info.
       - name: Check for leaks
         run: npm run check:leaks
 
-      - name: Check internal links
-        run: npm run check:links
-
+      # Build first, then verify. check:links inspects the rendered HTML in
+      # docs/.vitepress/dist, which does not exist on a clean CI checkout, so
+      # running it earlier made it silently pass without checking anything.
       - name: Build site
         run: npm run build
+
+      - name: Check internal links
+        run: npm run check:links
 
       - uses: actions/configure-pages@v5
 
