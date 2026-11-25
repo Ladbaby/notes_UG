@@ -53,6 +53,7 @@ export default withMermaid(
       outline: { level: [2, 3], label: '本页目录' },
       nav: [
         { text: '首页', link: '/' },
+        { text: '知识图谱', link: '/graph' },
         { text: '全部课程', link: '/courses' },
       ],
       sidebar: buildSidebar(),

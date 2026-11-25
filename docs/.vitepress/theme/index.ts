@@ -10,6 +10,7 @@ import CourseGrid from './components/CourseGrid.vue'
 import HomeHero from './components/HomeHero.vue'
 import AllCourses from './components/AllCourses.vue'
 import CourseIndex from './components/CourseIndex.vue'
+import KnowledgeGraph from './components/KnowledgeGraph.vue'
 
 let zoom
 
@@ -35,6 +36,7 @@ export default {
     app.component('HomeHero', HomeHero)
     app.component('AllCourses', AllCourses)
     app.component('CourseIndex', CourseIndex)
+    app.component('KnowledgeGraph', KnowledgeGraph)
 
     if (typeof window !== 'undefined') {
       router.onAfterRouteChanged = () => {

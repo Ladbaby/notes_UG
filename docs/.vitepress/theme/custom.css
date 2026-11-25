@@ -193,25 +193,26 @@ body {
 
 .vn-hero-shell {
   position: relative;
-  overflow: hidden;
   isolation: isolate;
 }
 
+/*
+ * The constellation is a fixed backdrop, so it stays visible the whole way down
+ * the page instead of scrolling away with the hero.
+ *
+ * This is deliberately NOT clipped to the hero any more. The GPU cost is kept
+ * down by the canvas loop itself stopping once the hero is off screen (see
+ * ConstellationCanvas), and by leaving the last frame on screen as a static
+ * image rather than continuing to repaint a viewport-sized canvas.
+ */
 .vn-field {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
   /* Decorative: isolate so nothing inside can trigger page reflow. */
-  contain: layout paint style;
-  /*
-   * Only needs to fade toward the bottom of the hero now that the field is
-   * clipped to the hero box rather than the whole viewport.
-   */
-  --vn-field-fade: linear-gradient(to bottom, #000 0, #000 72%, transparent 100%);
-  -webkit-mask-image: var(--vn-field-fade);
-  mask-image: var(--vn-field-fade);
+  contain: strict;
 }
 
 .vn-field__canvas {

@@ -399,10 +399,9 @@ function stop() {
   running = false
   if (raf) cancelAnimationFrame(raf)
   raf = 0
-  // Wipe the last frame. The canvas is position:fixed, so without this the
-  // frozen constellation stays visible behind the note cards after the hero
-  // scrolls away, which reads as a rendering glitch.
-  if (ctx) ctx.clearRect(0, 0, w, h)
+  // Deliberately NOT clearing: the field is a fixed backdrop that should stay
+  // visible while scrolling, so the final frame is left on screen as a static
+  // image. Cancelling the rAF loop is what stops it costing anything.
 }
 
 function isHeroOnScreen() {
